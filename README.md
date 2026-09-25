@@ -18,3 +18,4 @@ To add a project, drop its logo in `icons/` and add a line to the list inside th
 - `icons/logo-1024.png`, `icons/logo-512.png`: PNG exports
 - `icons/apple-touch-icon.png` (180px), `icons/favicon-32.png`: browser/home-screen icons
 - `icons/ping.svg`, `icons/boards.svg`: project logos, from [dbohry/ping](https://github.com/dbohry/ping) and [dbohry/kanban](https://github.com/dbohry/kanban)
+- `icons/img.svg`: project logo for img.blacktilde.com

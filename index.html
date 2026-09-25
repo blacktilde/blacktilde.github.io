@@ -39,10 +39,17 @@
   .panel > div { overflow: hidden; }
   .panel ul { list-style: none; margin: 0 10px; padding: 6px 0 10px; border-top: 1px solid var(--line); }
   .panel a { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 9px 10px; border-radius: 12px; color: var(--fg); text-decoration: none; font-size: 14px; }
-  .panel a:hover { background: var(--hover); }
+  .panel a { transition: background-color .2s ease; }
+  .panel a:hover, .panel a:focus-visible { background: var(--hover); outline: none; }
   .panel .p { display: flex; align-items: center; gap: 10px; }
-  .pl { width: 22px; height: 22px; border-radius: 5px; box-shadow: 0 0 0 1px rgba(255,255,255,.12); }
-  .panel .d { color: var(--muted); font-size: 13px; }
+  .pl { width: 22px; height: 22px; border-radius: 5px; box-shadow: 0 0 0 1px rgba(255,255,255,.12); transition: transform .3s cubic-bezier(.2,.8,.2,1); }
+  .panel .d { display: flex; align-items: center; color: var(--muted); font-size: 13px; transition: color .2s ease; }
+  /* Arrow slides in on hover, nudging the description aside. */
+  .go { width: 0; height: 12px; margin-left: 0; opacity: 0; transform: translateX(-6px);
+    transition: width .3s cubic-bezier(.2,.8,.2,1), margin-left .3s cubic-bezier(.2,.8,.2,1), opacity .2s ease, transform .3s cubic-bezier(.2,.8,.2,1); }
+  .panel a:hover .pl, .panel a:focus-visible .pl { transform: scale(1.08) rotate(-4deg); }
+  .panel a:hover .d, .panel a:focus-visible .d { color: var(--fg); }
+  .panel a:hover .go, .panel a:focus-visible .go { width: 12px; margin-left: 8px; opacity: 1; transform: none; }
 
   main { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 120px 16px 64px; }
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
@@ -50,9 +57,16 @@
     transition: transform .4s cubic-bezier(.2,.8,.2,1), box-shadow .4s ease; }
   .hero-mark:hover { transform: scale(1.06) rotate(-3deg); box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 20px 60px -10px rgba(255,255,255,.18); }
   .hero-mark rect { fill: var(--fg); } .hero-mark path { stroke: var(--bg); }
+
+  /* Loading: the hero logo pops in and its wave runs until the page is ready, then the nav drops in. */
+  .loading nav { opacity: 0; transform: translate(-50%, -12px); pointer-events: none; }
+  nav { transition: opacity .5s ease, transform .5s cubic-bezier(.2,.8,.2,1); }
+  .loading .hero-mark { animation: pop .6s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes pop { from { opacity: 0; transform: scale(.8); } }
+  @media (prefers-reduced-motion: reduce) { nav { transition: none; } .loading .hero-mark { animation: none; } }
 </style>
 </head>
-<body>
+<body class="loading">
 <nav id="nav">
   <div class="bar">
     <a class="brand" href="/"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8"/><path d="M7 18c2-5 5-5 9-2s7 3 9-2" stroke-width="3" fill="none" stroke-linecap="round"/></svg>Blacktilde</a>
@@ -65,9 +79,9 @@
   <div class="panel" id="panel"><div>
     <!-- Add projects here: logo in icons/, name, short description. -->
     <ul>
-      <li><a href="https://ping.blacktilde.com"><span class="p"><img class="pl" src="icons/ping.svg" alt="">Ping</span><span class="d">HTTP client</span></a></li>
-      <li><a href="https://boards.blacktilde.com"><span class="p"><img class="pl" src="icons/boards.svg" alt="">Boards</span><span class="d">Kanban boards</span></a></li>
-      <li><a href="https://img.blacktilde.com"><span class="p"><img class="pl" src="icons/img.svg" alt="">Img</span><span class="d">Image service</span></a></li>
+      <li><a target="_blank" rel="noopener" href="https://ping.blacktilde.com"><span class="p"><img class="pl" src="icons/ping.svg" alt="">Ping</span><span class="d">HTTP client<svg class="go" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6h8M6.5 2.5L10 6l-3.5 3.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span></a></li>
+      <li><a target="_blank" rel="noopener" href="https://boards.blacktilde.com"><span class="p"><img class="pl" src="icons/boards.svg" alt="">Boards</span><span class="d">Kanban boards<svg class="go" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6h8M6.5 2.5L10 6l-3.5 3.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span></a></li>
+      <li><a target="_blank" rel="noopener" href="https://img.blacktilde.com"><span class="p"><img class="pl" src="icons/img.svg" alt="">Img</span><span class="d">Image service<svg class="go" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6h8M6.5 2.5L10 6l-3.5 3.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span></a></li>
     </ul>
   </div></div>
 </nav>
@@ -78,7 +92,13 @@
 <script>
   const nav = document.getElementById("nav"), t = document.getElementById("toggle");
   const set = o => { nav.classList.toggle("open", o); t.setAttribute("aria-expanded", o); };
-  t.onclick = e => { e.stopPropagation(); set(!nav.classList.contains("open")); };
+  // Mouse: open on hovering "Projects", close shortly after leaving the nav. Touch/keyboard: click toggles.
+  let closeTimer = 0;
+  const isMouse = e => e.pointerType === "mouse";
+  t.addEventListener("pointerenter", e => { if (isMouse(e)) { clearTimeout(closeTimer); set(true); } });
+  nav.addEventListener("pointerenter", e => { if (isMouse(e)) clearTimeout(closeTimer); });
+  nav.addEventListener("pointerleave", e => { if (isMouse(e)) closeTimer = setTimeout(() => set(false), 200); });
+  t.onclick = e => { e.stopPropagation(); set(isMouse(e) || !nav.classList.contains("open")); };
   document.addEventListener("click", e => { if (!nav.contains(e.target)) set(false); });
   document.addEventListener("keydown", e => { if (e.key === "Escape") set(false); });
 
@@ -86,7 +106,7 @@
   (() => {
     const hero = document.getElementById("hero"), wave = document.getElementById("wave");
     const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let phase = 0, amp = 3, hovering = false, raf = 0, last = 0;
+    let phase = 0, amp = 3, hovering = false, loading = true, raf = 0, last = 0;
     const draw = () => {
       let d = "";
       for (let i = 0; i <= 36; i++) {
@@ -97,7 +117,7 @@
     };
     const step = now => {
       const dt = Math.min(50, now - (last || now)) / 1000; last = now;
-      if (hovering) { phase -= dt * 7; amp += (4 - amp) * Math.min(1, dt * 6); }
+      if (hovering || loading) { phase -= dt * 7; amp += (4 - amp) * Math.min(1, dt * 6); }
       else {
         const target = Math.floor(phase / (2 * Math.PI)) * 2 * Math.PI; // next rest position ahead
         phase += (target - phase) * Math.min(1, dt * 5); amp += (3 - amp) * Math.min(1, dt * 6);
@@ -109,6 +129,13 @@
     hero.addEventListener("pointerenter", () => { hovering = true; start(); });
     hero.addEventListener("pointerleave", () => { hovering = false; start(); });
     draw();
+
+    // Loader: run the wave until the page has loaded (and for at least one full sweep), then settle and reveal.
+    const done = () => { loading = false; start(); document.body.classList.remove("loading"); };
+    if (still) { done(); return; }
+    start();
+    const loaded = new Promise(r => document.readyState === "complete" ? r() : addEventListener("load", r, { once: true }));
+    Promise.all([loaded, new Promise(r => setTimeout(r, 1400))]).then(done);
   })();
 </script>
 </body>

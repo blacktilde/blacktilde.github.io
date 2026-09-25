@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>blacktilde</title>
+<meta name="description" content="Projects by blacktilde.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23000'/><path d='M7 18c2-5 5-5 9-2s7 3 9-2' stroke='%23fff' stroke-width='3' fill='none' stroke-linecap='round'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050505; --card: #0e0e0f; --fg: #ededed; --muted: #8a8a8f; --line: #1f1f22; --hi: #2d2d31;
+    --live: #3ddc97; --beta: #f5b544;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font: 15px/1.6 Geist, system-ui, sans-serif; -webkit-font-smoothing: antialiased;
+    background-image:
+      radial-gradient(60% 40% at 50% 0%, rgba(255,255,255,.07), transparent 70%),
+      linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+    background-size: 100% 100%, 56px 56px, 56px 56px;
+    background-position: 0 0, -1px -1px, -1px -1px;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+  .hero { text-align: center; padding: 18vh 0 10vh; }
+  .mark {
+    width: 72px; height: 72px; margin: 0 auto 28px; border-radius: 18px; display: grid; place-items: center;
+    background: linear-gradient(180deg, #1a1a1c, #0a0a0b); border: 1px solid var(--hi);
+    box-shadow: 0 0 60px rgba(255,255,255,.08), inset 0 1px 0 rgba(255,255,255,.08);
+  }
+  h1 { font-size: clamp(40px, 7vw, 64px); font-weight: 600; letter-spacing: -0.045em; line-height: 1; margin: 0; }
+  .sub { color: var(--muted); font-size: 18px; margin: 16px auto 0; max-width: 460px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; padding-bottom: 80px; }
+  .card {
+    display: flex; flex-direction: column; gap: 10px; padding: 22px; border-radius: 14px;
+    background: var(--card); border: 1px solid var(--line); color: inherit; text-decoration: none;
+    transition: border-color .2s, transform .2s;
+  }
+  a.card:hover { border-color: #3a3a40; transform: translateY(-2px); }
+  .top { display: flex; justify-content: space-between; align-items: center; }
+  .name { font-weight: 600; font-size: 17px; letter-spacing: -0.01em; }
+  .badge { font: 12px "Geist Mono", monospace; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+  .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .live { color: var(--live); } .beta { color: var(--beta); } .soon { color: var(--muted); }
+  .desc { color: var(--muted); margin: 0; flex: 1; }
+  .url { font: 13px "Geist Mono", monospace; color: #b5b5ba; }
+  .card.is-soon { border-style: dashed; background: transparent; }
+  footer { border-top: 1px solid var(--line); padding: 28px 0 40px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; color: var(--muted); font-size: 14px; }
+  footer a { color: var(--muted); text-decoration: none; margin-left: 20px; }
+  footer a:hover { color: var(--fg); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <div class="mark">
+      <svg width="40" height="40" viewBox="0 0 32 32"><path d="M6 18c2-5 5.5-5 10-2s8 3 10-2" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg>
+    </div>
+    <h1>blacktilde</h1>
+    <p class="sub">A collection of projects, experiments and tools — each one living at its own <code>*.blacktilde.com</code>.</p>
+  </section>
+
+  <section class="grid" id="projects"></section>
+
+  <footer>
+    <span>© <span id="y"></span> blacktilde</span>
+    <span><a href="https://github.com/blacktilde">GitHub</a><a href="mailto:hello@blacktilde.com">Contact</a></span>
+  </footer>
+</div>
+<script>
+  // Add projects here. status: "live" | "beta" | "soon"
+  const projects = [
+    { name: "Notes",  sub: "notes",  desc: "Placeholder — a short line about this project.", status: "live" },
+    { name: "Status", sub: "status", desc: "Placeholder — another project description.",     status: "beta" },
+    { name: "Lab",    sub: "lab",    desc: "Something new is in the works.",                  status: "soon" },
+  ];
+  const grid = document.getElementById("projects");
+  for (const p of projects) {
+    const soon = p.status === "soon";
+    const card = document.createElement(soon ? "div" : "a");
+    card.className = "card" + (soon ? " is-soon" : "");
+    if (!soon) card.href = `https://${p.sub}.blacktilde.com`;
+    card.innerHTML = `<div class="top"><span class="name">${p.name}</span>
+        <span class="badge ${p.status}">${p.status}</span></div>
+      <p class="desc">${p.desc}</p>
+      <span class="url">${p.sub}.blacktilde.com${soon ? "" : " →"}</span>`;
+    grid.appendChild(card);
+  }
+  document.getElementById("y").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
